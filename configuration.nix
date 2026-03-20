@@ -13,7 +13,7 @@
   networking.networkmanager.enable = true;
   time.timeZone = "America/Chicago";
   i18n.defaultLocale = "en_US.UTF-8";
-  
+
   services.xserver = {
     enable = true;
     autoRepeatDelay = 200;
@@ -40,6 +40,9 @@
     git
     alacritty
     oh-my-posh
+    fzf
+    zoxide
+    xclip
   ];
 
   fonts.packages = with pkgs; [
