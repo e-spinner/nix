@@ -1,0 +1,24 @@
+@theme "catppuccin-default" 
+
+* { 
+  font: "monospace 14"; 
+}
+
+window { 
+  width: 120px; 
+  location: northeast;
+  anchor:   northeast;
+  x-offset: -2px;
+  y-offset: 2px;
+}
+
+inputbar { enabled: false; }
+
+listview { 
+  scrollbar: false;
+  orientation: vertical;
+}
+
+
+
+

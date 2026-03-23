@@ -8,7 +8,7 @@
   };
 
   outputs = inputs@{ self, nixpkgs, home-manager, ... }: {
-    nixosConfigurations.Casper = nixpkgs.lib.nixosSystem {
+    nixosConfigurations.Melchior = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       modules = [ 
         ./configuration.nix 

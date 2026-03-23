@@ -1,0 +1,11 @@
+@theme "catppuccin-default" 
+
+window { 
+  location: northeast;
+  anchor:   northeast;
+  x-offset: -2px;
+  y-offset: 2px;
+}
+
+
+

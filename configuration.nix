@@ -9,18 +9,83 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
-  networking.hostName = "Casper";
+  networking.hostName = "Melchior";
   networking.networkmanager.enable = true;
   time.timeZone = "America/Chicago";
   i18n.defaultLocale = "en_US.UTF-8";
 
+  services.keyd.enable = true;
+  environment.etc."keyd/default.conf".source = ./config/keyd.conf;
+
+  boot.kernelParams = [ "nvidia-drm.modeset=1" ];
+  environment.sessionVariables = {
+    WLR_NO_HARDWARE_CURSORS = "1";
+    NIXOS_OZONE_WL = "1";
+    __GLX_VENDOR_LIBRARY_NAME = "nvidia";
+    GBM_BACKEND = "nvidia-drm";
+    LIBVA_DRIVER_NAME = "nvidia";
+  };
+
+  hardware = {
+    graphics = {
+      enable = true;
+      enable32Bit = true;
+    };
+
+    nvidia = {
+      modesetting.enable = true;
+      open = true;
+      nvidiaSettings = true;
+      package = config.boot.kernelPackages.nvidiaPackages.stable;
+
+      prime = {
+        offload = {
+          enable = false;
+          # enableOffloadCmd = true; # Lets you use `nvidia-offload %command%` in steam
+        };
+        # sync.enable = true;
+        intelBusId = "PCI:0:2:0";
+        nvidiaBusId = "PCI:1:0:0";
+      };
+    };
+  };
+
+  services.blueman.enable = true;
+  hardware.bluetooth = {
+    enable = true;
+    powerOnBoot = true;
+    settings = {
+      General = {
+        # Shows battery charge of connected devices on supported
+        # Bluetooth adapters. Defaults to 'false'.
+        Experimental = true;
+        # When enabled other devices can connect faster to us, however
+        # the tradeoff is increased power consumption. Defaults to
+        # 'false'.
+        FastConnectable = false;
+      };
+      Policy = {
+        # Enable all controllers when they are found. This includes
+        # adapters present on start as well as adapters that are plugged
+        # in later on. Defaults to 'true'.
+        AutoEnable = true;
+      };
+    };
+  };
+
+  services.libinput.enable = true;
   services.xserver = {
     enable = true;
+
+    xkb.layout = "us";
+
     autoRepeatDelay = 200;
     autoRepeatInterval = 35;
+
+    displayManager.lightdm.enable = false;
     windowManager.qtile.enable = true;
+    videoDrivers = [ "nvidia" ];
   };
-  services.displayManager.ly.enable = true;
 
   users.users.dev = {
     isNormalUser = true;
@@ -28,21 +93,51 @@
     shell = pkgs.zsh;
   };
 
+  services.greetd = {
+    enable = true;
+    settings = {
+      default_session = {
+        command = "Hyprland";
+        user = "dev";
+      };
+    };
+  };
+
   nixpkgs.config.allowUnfree = true;
   programs.zsh.enable = true;
-  programs.firefox.enable = true;
+  # programs.firefox.enable = true;
+
+  programs.steam.enable = true;
+  programs.steam.gamescopeSession.enable = true;
+  programs.gamemode.enable = true;
+
+  programs.hyprland.enable = true;
 
   environment.systemPackages = with pkgs; [
-    vim
-    wget
-    tree
-    vscode
     git
-    alacritty
+    wget
+    vivaldi
+    vscode
+    vim
+
+    waybar
+    # thunar
+
+    # terminal stuff
+    kitty
+    # alacritty
     oh-my-posh
     fzf
     zoxide
     xclip
+    tree
+
+
+    # steam
+    mangohud
+    protonup-qt
+    lutris
+    bottles
   ];
 
   fonts.packages = with pkgs; [
