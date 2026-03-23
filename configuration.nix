@@ -50,6 +50,18 @@
     };
   };
 
+  # Enable RealtimeKit for audio purposes
+  security.rtkit.enable = true;
+
+  services.pipewire = {
+    enable = true;
+    alsa.enable = true;
+    alsa.support32Bit = true;
+    pulse.enable = true;
+    # Uncomment the following line if you want to use JACK applications
+    # jack.enable = true;
+  };
+
   services.blueman.enable = true;
   hardware.bluetooth = {
     enable = true;
@@ -120,8 +132,16 @@
     vscode
     vim
 
+    # graphical env
     waybar
-    # thunar
+    pavucontrol
+    pamixer
+    brightnessctl
+    dunst
+    dmenu-bluetooth
+    networkmanager_dmenu
+    rofi
+    xfce.thunar
 
     # terminal stuff
     kitty

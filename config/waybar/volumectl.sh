@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 function send_notification() {
   dunstify -a "waybarctl" -u low  -r 617 -h int:value:$1 "${1}%" -t 1500
@@ -7,10 +7,10 @@ function send_notification() {
 
 volume=$(pamixer --get-volume)
 
-case $1 in 
+case $1 in
   up)
     pamixer -u
-    if (( volume < 125 )); then 
+    if (( volume < 125 )); then
       pamixer -i 5 --allow-boost
     fi
     send_notification $volume
@@ -26,6 +26,6 @@ case $1 in
       dunstify -a "changevolume" -u low  -r 617 -h int:value:"$volume" "Muted" -t 2000
     else
       send_notification
-    fi 
+    fi
     ;;
 esac

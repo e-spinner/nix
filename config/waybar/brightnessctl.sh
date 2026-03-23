@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 function send_notification() {
   percent=$(($1 * 100 / 96000))

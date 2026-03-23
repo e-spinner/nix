@@ -50,7 +50,7 @@ zstyle ':fzf-tab:complete:cd:*' fzf-preview 'ls --color $realpath'
 zstyle ':fzf-tab:complete:__zoxide_z:*' fzf-preview 'ls --color $realpath'
 
 # Aliases
-# alias ls='ls --color'
+alias ls='ls --color'
 alias c='clear'
 alias -s md='bat'
 # Redirect stderr to /dev/null
@@ -90,7 +90,7 @@ function auto_venv() {
 }
 
 function chpwd_ls() {
-  command ls
+  command ls --color
 }
 
 add-zsh-hook chpwd auto_venv
