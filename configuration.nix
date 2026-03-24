@@ -15,7 +15,7 @@
   i18n.defaultLocale = "en_US.UTF-8";
 
   services.keyd.enable = true;
-  environment.etc."keyd/default.conf".source = ./config/keyd.conf;
+  environment.etc."keyd/default.conf".source = ./cfg/keyd.conf;
 
   boot.kernelParams = [ "nvidia-drm.modeset=1" ];
   environment.sessionVariables = {

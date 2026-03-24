@@ -44,6 +44,11 @@
             useGlobalPkgs = true;
             useUserPackages = true;
 
+            extraSpecialArgs = {
+              inherit inputs pkgs-unstable;
+            };
+
+
             users.dev = {
               imports = [
                 ./home.nix

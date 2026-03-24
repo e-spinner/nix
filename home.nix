@@ -6,6 +6,7 @@ let
     ohmyposh = "ohmyposh";
     hypr = "hypr";
     kitty = "kitty";
+    spicetify = "spicetify";
   };
 
   gtkTheme = "catppuccin-mocha-green-standard";
@@ -42,7 +43,6 @@ in
   };
 
   home.packages = with pkgs; [
-
   ];
 
   programs.caelestia = {
@@ -64,19 +64,28 @@ in
   };
 
   programs.spicetify =
-    let
-      spicePkgs = inputs.spicetify-nix.legacyPackages.${pkgs.system};
-    in {
+  let
+    spicePkgs = inputs.spicetify-nix.legacyPackages.${pkgs.stdenv.hostPlatform.system};
+  in {
       enable = true;
+
+      enabledCustomApps = with spicePkgs.apps; [
+        marketplace
+      ];
 
       enabledExtensions = with spicePkgs.extensions; [
         adblock
+        hidePodcasts
         shuffle
       ];
 
-      enabledSnippets = [
-        (builtins.readFile ./cfg/spicetify/user.css)
-      ];
+      theme = {
+        name = "caelestia";
+        src = .cfg/spicetify/Themes/caelestia;
+        appendName = false;
+      };
+      colorScheme = "caelestia";
+
     };
 
   xdg.configFile = builtins.mapAttrs
