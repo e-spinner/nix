@@ -85,6 +85,8 @@ in
         shuffle
       ];
 
+      # ln -s ~/Nix/cfg/spicetify/ ~/.config/spicetify/Themes/caelestia
+      # remap caelestia colors output
       theme = {
         name = "caelestia";
         src = ./cfg/spicetify;
