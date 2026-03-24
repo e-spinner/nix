@@ -1,6 +1,6 @@
 { config, pkgs, inputs, ... }:
 let
-  dotfiles = "${config.home.homeDirectory}/Nix/config";
+  dotfiles = "${config.home.homeDirectory}/Nix/cfg";
   create_symlnk = path: config.lib.file.mkOutOfStoreSymlink path;
   configs = {
     ohmyposh = "ohmyposh";
@@ -75,7 +75,7 @@ in
       ];
 
       enabledSnippets = [
-        (builtins.readFile config/spicetify/user.css)
+        (builtins.readFile ./cfg/spicetify/user.css)
       ];
     };
 
@@ -87,5 +87,5 @@ in
     configs;
 
   home.file.".zshrc".source = create_symlnk "${dotfiles}/.zshrc";
-  home.file.".config/vscode/flags.conf".source = create_symlnk "${dotfiles}/vscode/flags.conf";
+  home.file.".cfg/vscode/flags.conf".source = create_symlnk "${dotfiles}/vscode/flags.conf";
 }
