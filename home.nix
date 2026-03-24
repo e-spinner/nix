@@ -6,7 +6,6 @@ let
     ohmyposh = "ohmyposh";
     hypr = "hypr";
     kitty = "kitty";
-    spicetify = "spicetify";
   };
 
   gtkTheme = "catppuccin-mocha-green-standard";
@@ -70,8 +69,6 @@ in
     })
     configs;
 
-  # home.file.".config/spicetify/Themes/caelestia/user.css".source = create_symlnk "${dotfiles}/spicetify/users.css";
-
   programs.spicetify =
   let
     spicePkgs = inputs.spicetify-nix.legacyPackages.${pkgs.stdenv.hostPlatform.system};
@@ -90,7 +87,7 @@ in
 
       theme = {
         name = "caelestia";
-        src = ./cfg/spicetify/Themes/caelestia;
+        src = ./cfg/spicetify;
         appendName = false;
       };
       colorScheme = "caelestia";
