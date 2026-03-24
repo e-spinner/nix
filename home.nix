@@ -63,6 +63,15 @@ in
     };
   };
 
+  xdg.configFile = builtins.mapAttrs
+    (name: subpath: {
+      source = create_symlnk "${dotfiles}/${subpath}/";
+      recursive = true;
+    })
+    configs;
+
+  # home.file.".config/spicetify/Themes/caelestia/user.css".source = create_symlnk "${dotfiles}/spicetify/users.css";
+
   programs.spicetify =
   let
     spicePkgs = inputs.spicetify-nix.legacyPackages.${pkgs.stdenv.hostPlatform.system};
@@ -81,19 +90,12 @@ in
 
       theme = {
         name = "caelestia";
-        src = .cfg/spicetify/Themes/caelestia;
+        src = ./cfg/spicetify/Themes/caelestia;
         appendName = false;
       };
       colorScheme = "caelestia";
 
     };
-
-  xdg.configFile = builtins.mapAttrs
-    (name: subpath: {
-      source = create_symlnk "${dotfiles}/${subpath}/";
-      recursive = true;
-    })
-    configs;
 
   home.file.".zshrc".source = create_symlnk "${dotfiles}/.zshrc";
   home.file.".cfg/vscode/flags.conf".source = create_symlnk "${dotfiles}/vscode/flags.conf";
