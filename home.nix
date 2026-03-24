@@ -1,4 +1,4 @@
-{ config, pkgs, inputs, ... }:
+{ config, pkgs, inputs, lib, ... }:
 let
   dotfiles = "${config.home.homeDirectory}/Nix/cfg";
   create_symlnk = path: config.lib.file.mkOutOfStoreSymlink path;
@@ -8,9 +8,23 @@ let
     kitty = "kitty";
   };
 
-  gtkTheme = "catppuccin-mocha-green-standard";
-  iconTheme = "Tela-circle-green";
-
+  extension = shortId: guid: {
+    name = guid;
+    value = {
+      install_url = "https://addons.mozilla.org/en-US/firefox/downloads/latest/${shortId}/latest.xpi";
+      installation_mode = "force_installed"; # This ensures it's always there
+    };
+  };
+  prefs = {
+    "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
+    "browser.tabs.drawInTitlebar" = true;
+    "browser.uidensity" = 0;
+    "extensions.autoDisableScopes" = 0;
+  };
+  extensions = [
+    (extension "ublock-origin" "uBlock0@raymondhill.net")
+    (extension "caelestiafox" "caelestiafox@caelestia.dev")
+  ];
 in
 
 {
@@ -29,8 +43,7 @@ in
   };
 
   home.sessionVariables = {
-    GTK_THEME = "${gtkTheme}+default";
-    GTK_ICON_THEME = iconTheme;
+
   };
 
   home.pointerCursor = {
@@ -41,8 +54,30 @@ in
     size = 16;
   };
 
-  home.packages = with pkgs; [
+  home.packages = [
+    (pkgs.wrapFirefox inputs.zen-browser.packages.${pkgs.system}.zen-browser-unwrapped {
+        extraPrefs = lib.concatLines (
+          lib.mapAttrsToList (name: value: ''
+            lockPref(${lib.strings.toJSON name}, ${lib.strings.toJSON value});
+          '') prefs
+        );
 
+        extraPolicies = {
+          DisableTelemetry = true;
+          ExtensionSettings = builtins.listToAttrs extensions;
+
+          SearchEngines = {
+            Default = "Google";
+            Add = [
+              {
+                Name = "Nix Packages";
+                URLTemplate = "https://search.nixos.org/packages?query={searchTerms}";
+                Alias = "@np";
+              }
+            ];
+          };
+        };
+      })
   ];
 
   programs.caelestia = {
@@ -59,8 +94,25 @@ in
       enable = true; # Also add caelestia-cli to path
       settings = {
         theme.enableGtk = true;
+        wallpaper.postHook = "kill -USR1 $(pgrep kitty)";
       };
     };
+  };
+
+  home.file.".config/caelestia/templates/kitty-colors.conf".source = create_symlnk "${dotfiles}/kitty/colors.conf";
+
+  home.file.".mozilla/native-messaging-hosts/caelestiafox.json".text = builtins.toJSON {
+    name = "caelestiafox";
+    description = "Caelestia bridge";
+    path = "${config.home.homeDirectory}/.local/lib/caelestia/caelestiafox";
+    type = "stdio";
+    allowed_extensions = [ "caelestiafox@caelestia.dev" ];
+  };
+
+  # 2. The Bridge Script (Symlink to your Nix config)
+  home.file.".local/lib/caelestia/caelestiafox" = {
+    source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/Nix/cfg/zen/native_app/app.fish";
+    executable = true;
   };
 
   xdg.configFile = builtins.mapAttrs
@@ -70,8 +122,6 @@ in
     })
     configs;
 
-  # cp ~/Nix/cfg/spicetify/user.css ~/.config/spicetify/Themes/caelestia/user.css
-  # also add spice.css to caelestia templates
   programs.spicetify =
   let
     spicePkgs = inputs.spicetify-nix.legacyPackages.${pkgs.stdenv.hostPlatform.system};
@@ -87,15 +137,7 @@ in
         shuffle
       ];
 
-      enabledSnippets = [
-        ''
-        @import url("file:///home/dev/.local/state/caelestia/theme/spice.css");
-        @import url("file:///home/dev/.config/spicetify/Themes/caelestia/user.css");
-        ''
-      ];
-
     };
 
   home.file.".zshrc".source = create_symlnk "${dotfiles}/.zshrc";
-  home.file.".cfg/vscode/flags.conf".source = create_symlnk "${dotfiles}/vscode/flags.conf";
 }

@@ -1,35 +1,37 @@
 
 # zinit
 ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
-
-if [ ! -d "$ZINIT_HOME" ]; then
-  mkdir -p "$(dirname $ZINIT_HOME)"
-  git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
-fi
-
+[[ ! -d "$ZINIT_HOME" ]] && git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
 source "${ZINIT_HOME}/zinit.zsh"
 
-# plugins
-zinit light zsh-users/zsh-syntax-highlighting
-zinit light zsh-users/zsh-completions
-zinit light zsh-users/zsh-autosuggestions
-zinit light Aloxaf/fzf-tab
+eval "$(oh-my-posh init zsh --config $HOME/.config/ohmyposh/omp.toml)"
 
-# snippets
-# zinit snippet OMZL::git.zsh
-# zinit snippet OMZP::git
-zinit snippet OMZP::sudo
+# plugins
+zinit wait"0" lucid light-mode for \
+    zsh-users/zsh-syntax-highlighting \
+    zsh-users/zsh-completions \
+    zsh-users/zsh-autosuggestions \
+    Aloxaf/fzf-tab \
+    OMZP::sudo
 
 # load completions
-autoload -U compinit && compinit
+autoload -Uz compinit
+for dump in "${ZDOTDIR:-$HOME}/.zcompdump"(N.mh+24); do
+  compinit
+done
+compinit -C
 zinit cdreplay -q
 
-eval "$(oh-my-posh init zsh --config $HOME/.config/ohmyposh/omp.toml)"
+if [[ -z "$_FZF_LOADED" ]]; then
+    eval "$(fzf --zsh)"
+    eval "$(zoxide init --cmd cd zsh)"
+    export _FZF_LOADED=1
+fi
 
 bindkey -e
 bindkey ' ' magic-space
 
-# histroy
+# History
 HISTSIZE=5000
 HISTFILE=~/.zsh_history
 SAVEHIST=$HISTSIZE
@@ -62,11 +64,6 @@ alias -g NUL='>/dev/null 2>&1'
 # Copy output to clipboard (Linux with xclip)
 alias -g C='| xclip -selection clipboard'
 
-# Shell integrations
-eval "$(fzf --zsh)"
-eval "$(zoxide init --cmd cd zsh)"
-
-
 # hooks
 autoload -Uz add-zsh-hook
 
@@ -83,6 +80,7 @@ function auto_venv() {
   while [[ "$dir" != "/" ]]; do
     if [[ -f "$dir/.venv/bin/activate" ]]; then
       source "$dir/.venv/bin/activate"
+
       return
     fi
     dir="${dir:h}"
