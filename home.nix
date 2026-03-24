@@ -42,6 +42,7 @@ in
   };
 
   home.packages = with pkgs; [
+
   ];
 
   programs.caelestia = {
@@ -69,6 +70,8 @@ in
     })
     configs;
 
+  # cp ~/Nix/cfg/spicetify/user.css ~/.config/spicetify/Themes/caelestia/user.css
+  # also add spice.css to caelestia templates
   programs.spicetify =
   let
     spicePkgs = inputs.spicetify-nix.legacyPackages.${pkgs.stdenv.hostPlatform.system};
@@ -76,7 +79,6 @@ in
       enable = true;
 
       enabledCustomApps = with spicePkgs.apps; [
-        marketplace
       ];
 
       enabledExtensions = with spicePkgs.extensions; [
@@ -85,14 +87,12 @@ in
         shuffle
       ];
 
-      # ln -s ~/Nix/cfg/spicetify/ ~/.config/spicetify/Themes/caelestia
-      # remap caelestia colors output
-      theme = {
-        name = "caelestia";
-        src = ./cfg/spicetify;
-        appendName = false;
-      };
-      colorScheme = "caelestia";
+      enabledSnippets = [
+        ''
+        @import url("file:///home/dev/.local/state/caelestia/theme/spice.css");
+        @import url("file:///home/dev/.config/spicetify/Themes/caelestia/user.css");
+        ''
+      ];
 
     };
 
