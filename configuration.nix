@@ -1,4 +1,4 @@
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, pkgs-unstable, ... }:
 
 {
   imports =
@@ -11,7 +11,7 @@
 
   networking.hostName = "Melchior";
   networking.networkmanager.enable = true;
-  time.timeZone = "America/Chicago";
+  time.timeZone = "America/New_York";
   i18n.defaultLocale = "en_US.UTF-8";
 
   services.keyd.enable = true;
@@ -25,6 +25,8 @@
     GBM_BACKEND = "nvidia-drm";
     LIBVA_DRIVER_NAME = "nvidia";
   };
+
+  services.openssh.enable = true;
 
   hardware = {
     graphics = {
@@ -85,6 +87,13 @@
     };
   };
 
+  xdg.portal = {
+    enable = true;
+    extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
+  };
+  services.dbus.enable = true;
+  security.polkit.enable = true;
+
   services.libinput.enable = true;
   services.xserver = {
     enable = true;
@@ -94,7 +103,6 @@
     autoRepeatDelay = 200;
     autoRepeatInterval = 35;
 
-    displayManager.lightdm.enable = false;
     windowManager.qtile.enable = true;
     videoDrivers = [ "nvidia" ];
   };
@@ -105,53 +113,69 @@
     shell = pkgs.zsh;
   };
 
+  programs.hyprland = {
+    enable = true;
+    package = pkgs-unstable.hyprland;
+  };
   services.greetd = {
     enable = true;
+
     settings = {
       default_session = {
-        command = "Hyprland";
-        user = "dev";
+        command = "${pkgs.tuigreet}/bin/tuigreet \
+          --time \
+          --remember \
+          --cmd Hyprland";
+        user = "greeter";
       };
     };
   };
 
   nixpkgs.config.allowUnfree = true;
   programs.zsh.enable = true;
-  # programs.firefox.enable = true;
+  programs.firefox.enable = true;
+
 
   programs.steam.enable = true;
   programs.steam.gamescopeSession.enable = true;
   programs.gamemode.enable = true;
 
-  programs.hyprland.enable = true;
 
   environment.systemPackages = with pkgs; [
-    git
-    wget
+
+    # caelestia
+    brightnessctl
+    ddcutil
+    playerctl
+    lm_sensors
+    fish
+    bash
+    swappy
+    libqalculate
+    cava
+    wl-clipboard
+    grim
+    slurp
+    fuzzel
+    app2unit
+    hyprpicker
+
+    # applications
     vivaldi
     vscode
-    vim
-
-    # graphical env
-    waybar
-    pavucontrol
-    pamixer
-    brightnessctl
-    dunst
-    dmenu-bluetooth
-    networkmanager_dmenu
-    rofi
     xfce.thunar
+    ffmpeg-full
+    spotify
 
-    # terminal stuff
+    # zsh
     kitty
-    # alacritty
     oh-my-posh
     fzf
     zoxide
     xclip
     tree
-
+    git
+    wget
 
     # steam
     mangohud
@@ -161,7 +185,9 @@
   ];
 
   fonts.packages = with pkgs; [
-    nerd-fonts.jetbrains-mono
+      nerd-fonts.jetbrains-mono
+      nerd-fonts.caskaydia-cove
+      material-symbols
   ];
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];

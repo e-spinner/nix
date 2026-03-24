@@ -1,17 +1,11 @@
-{ config, pkgs, ... }:
+{ config, pkgs, inputs, ... }:
 let
   dotfiles = "${config.home.homeDirectory}/Nix/config";
   create_symlnk = path: config.lib.file.mkOutOfStoreSymlink path;
   configs = {
-    alacritty = "alacritty";
     ohmyposh = "ohmyposh";
     hypr = "hypr";
     kitty = "kitty";
-    waybar = "waybar";
-    rofi = "rofi";
-    dunst = "dunst";
-    "pavucontrol.ini" = "pavucontrol.ini";
-    networkmanager-dmenu = "networkmanager-dmenu";
   };
 
   gtkTheme = "catppuccin-mocha-green-standard";
@@ -47,28 +41,43 @@ in
     size = 16;
   };
 
-  gtk = {
-    enable = true;
-
-    theme = {
-      package = pkgs.catppuccin-gtk;
-      name = gtkTheme;
-    };
-
-    iconTheme = {
-      package = pkgs.tela-circle-icon-theme;
-      name = iconTheme;
-    };
-
-    font = {
-      name = "jetbrains-mono";
-      size = 11;
-    };
-  };
-
   home.packages = with pkgs; [
 
   ];
+
+  programs.caelestia = {
+    enable = true;
+    systemd.enable = false;
+
+    settings = {
+      bar.status = {
+        showBattery = true;
+      };
+      paths.wallpaperDir = "~/.Wallpapers";
+    };
+    cli = {
+      enable = true; # Also add caelestia-cli to path
+      settings = {
+        theme.enableGtk = true;
+      };
+    };
+  };
+
+  programs.spicetify =
+    let
+      spicePkgs = inputs.spicetify-nix.legacyPackages.${pkgs.system};
+    in {
+      enable = true;
+
+      enabledExtensions = with spicePkgs.extensions; [
+        adblock
+        shuffle
+      ];
+
+      enabledSnippets = [
+        (builtins.readFile config/spicetify/user.css)
+      ];
+    };
 
   xdg.configFile = builtins.mapAttrs
     (name: subpath: {
@@ -78,5 +87,5 @@ in
     configs;
 
   home.file.".zshrc".source = create_symlnk "${dotfiles}/.zshrc";
-  # home.file."pavucontrol.ini".source = create_symlnk "${dotfiles}/pavucontrol.ini";
+  home.file.".config/vscode/flags.conf".source = create_symlnk "${dotfiles}/vscode/flags.conf";
 }
