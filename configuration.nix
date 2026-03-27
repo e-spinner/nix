@@ -149,6 +149,8 @@
     playerctl
     lm_sensors
     fish
+    inotify-tools
+    jq
     bash
     swappy
     libqalculate
@@ -166,6 +168,7 @@
     xfce.thunar
     ffmpeg-full
     spotify
+    calibre
 
     # zsh
     kitty

@@ -23,7 +23,7 @@ let
   };
   extensions = [
     (extension "ublock-origin" "uBlock0@raymondhill.net")
-    (extension "caelestiafox" "caelestiafox@caelestia.dev")
+    (extension "caelestiafox" "caelestiafox@caelestia.org")
   ];
 in
 
@@ -55,7 +55,7 @@ in
   };
 
   home.packages = [
-    (pkgs.wrapFirefox inputs.zen-browser.packages.${pkgs.system}.zen-browser-unwrapped {
+    (pkgs.wrapFirefox inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.zen-browser-unwrapped {
         extraPrefs = lib.concatLines (
           lib.mapAttrsToList (name: value: ''
             lockPref(${lib.strings.toJSON name}, ${lib.strings.toJSON value});
@@ -106,14 +106,13 @@ in
     description = "Caelestia bridge";
     path = "${config.home.homeDirectory}/.local/lib/caelestia/caelestiafox";
     type = "stdio";
-    allowed_extensions = [ "caelestiafox@caelestia.dev" ];
+    allowed_extensions = [ "caelestiafox@caelestia.org" ];
   };
 
-  # 2. The Bridge Script (Symlink to your Nix config)
-  home.file.".local/lib/caelestia/caelestiafox" = {
-    source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/Nix/cfg/zen/native_app/app.fish";
-    executable = true;
-  };
+  home.file.".config/zen/8fut44ds.Default Profile/chrome/userChrome.css".source =
+    create_symlnk "${dotfiles}/zen/userChrome.css";
+  home.file.".local/lib/caelestia/caelestiafox".source = create_symlnk "${dotfiles}/zen/native_app/app.fish";
+
 
   xdg.configFile = builtins.mapAttrs
     (name: subpath: {
