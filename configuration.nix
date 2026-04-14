@@ -32,6 +32,10 @@
     graphics = {
       enable = true;
       enable32Bit = true;
+      extraPackages = with pkgs; [
+        mesa
+        libglvnd
+      ];
     };
 
     nvidia = {
@@ -42,8 +46,8 @@
 
       prime = {
         offload = {
-          enable = false;
-          # enableOffloadCmd = true; # Lets you use `nvidia-offload %command%` in steam
+          enable = true;
+          enableOffloadCmd = true; # Lets you use `nvidia-offload %command%` in steam
         };
         # sync.enable = true;
         intelBusId = "PCI:0:2:0";
@@ -87,12 +91,36 @@
     };
   };
 
+  networking.firewall.allowedUDPPorts = [ 53 67 ];
+
+
   xdg.portal = {
     enable = true;
     extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
   };
   services.dbus.enable = true;
   security.polkit.enable = true;
+  systemd.user.services.polkit-gnome-authentication-agent-1 = {
+    description = "gnome-authentication-agent-1";
+    wantedBy = [ "graphical-session.target" ];
+    serviceConfig = {
+      Type = "simple";
+      ExecStart = "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1";
+      Restart = "on-failure";
+      RestartSec = 1;
+      TimeoutStopSec = 10;
+    };
+  };
+
+  services.avahi = {
+    enable = true;
+    nssmdns4 = true; # Allows resolving .local addresses
+    publish = {
+      enable = true;
+      addresses = true;
+      workstation = true;
+    };
+  };
 
   services.libinput.enable = true;
   services.xserver = {
@@ -109,7 +137,7 @@
 
   users.users.dev = {
     isNormalUser = true;
-    extraGroups = [ "wheel" ];
+    extraGroups = [ "wheel" "dialout" "tty" ];
     shell = pkgs.zsh;
   };
 
@@ -140,6 +168,25 @@
   programs.steam.gamescopeSession.enable = true;
   programs.gamemode.enable = true;
 
+  programs.nix-ld.enable = true;
+
+  # Enable GVFS for mounting support
+  services.gvfs.enable = true;
+
+  # Enable Thunar and required plugins
+  programs.thunar.enable = true;
+  programs.thunar.plugins = with pkgs.xfce; [
+    thunar-volman
+    thunar-archive-plugin
+    tumbler
+  ];
+
+  # Ensure settings can be saved
+  programs.xfconf.enable = true;
+
+  # Thumbnails
+  services.tumbler.enable = true;
+
 
   environment.systemPackages = with pkgs; [
 
@@ -164,11 +211,33 @@
 
     # applications
     vivaldi
-    vscode
-    xfce.thunar
+    libreoffice
+    google-chrome
+    pkgs-unstable.vscode
     ffmpeg-full
     spotify
     calibre
+    tor-browser
+    gnome-autoar # Helps with automatic archive extraction
+    file-roller  # Highly recommended for Thunar integration
+    p7zip
+    unzip
+    zip
+    obsidian
+    uv
+    pkgs-unstable.code-cursor-fhs
+    popsicle
+    discord
+
+    dolphin-emu
+
+    rpi-imager
+    polkit_gnome
+    nmap
+    unixtools.ifconfig
+
+    pavucontrol
+    arduino-cli
 
     # zsh
     kitty
@@ -185,6 +254,20 @@
     protonup-qt
     lutris
     bottles
+
+    libGL
+    xorg.libX11
+    xorg.libXext
+    xorg.libXrender
+    xorg.libXrandr
+    xorg.libxcb
+    xorg.libXcursor
+    xorg.libXi
+    xorg.libXfixes
+
+    alsa-lib
+    libpulseaudio
+    glib
   ];
 
   fonts.packages = with pkgs; [

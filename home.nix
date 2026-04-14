@@ -43,7 +43,30 @@ in
   };
 
   home.sessionVariables = {
+    GTK_THEME = "adw-gtk3-dark";
+    XDG_DATA_DIRS = "$GSETTINGS_SCHEMAS_PATH:$XDG_DATA_DIRS";
+  };
 
+  gtk = {
+    enable = true;
+    theme = {
+      name = "adw-gtk3-dark"; # Or "adw-gtk3" if you prefer
+      package = pkgs.adw-gtk3;
+    };
+    iconTheme = {
+      name = "Papirus-Dark";
+      package = pkgs.papirus-icon-theme;
+    };
+    font = {
+      name = "JetBrainsMono Nerd Font";
+      size = 11;
+    };
+  };
+
+  xdg.portal = {
+    enable = true;
+    extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
+    config.common.default = "*";
   };
 
   home.pointerCursor = {
@@ -78,7 +101,11 @@ in
           };
         };
       })
+
+    pkgs.glib # For gsettings
+    pkgs.adwaita-icon-theme # Fallback icons to prevent pixelati
   ];
+
 
   programs.caelestia = {
     enable = true;
@@ -108,11 +135,18 @@ in
     type = "stdio";
     allowed_extensions = [ "caelestiafox@caelestia.org" ];
   };
+  home.file.".zen/native-messaging-hosts/caelestiafox.json".source =
+  config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.mozilla/native-messaging-hosts/caelestiafox.json";
 
-  home.file.".config/zen/8fut44ds.Default Profile/chrome/userChrome.css".source =
+  home.file.".zen/e507ccc6.Default Profile/chrome/userChrome.css".source =
     create_symlnk "${dotfiles}/zen/userChrome.css";
-  home.file.".local/lib/caelestia/caelestiafox".source = create_symlnk "${dotfiles}/zen/native_app/app.fish";
-
+  home.file.".local/lib/caelestia/caelestiafox" = {
+    executable = true;
+    text = ''
+      #!${pkgs.fish}/bin/fish
+      source ${dotfiles}/zen/native_app/app.fish
+    '';
+  };
 
   xdg.configFile = builtins.mapAttrs
     (name: subpath: {

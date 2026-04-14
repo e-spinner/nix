@@ -1,4 +1,3 @@
-#!/usr/bin/env fish
 
 function message -a msg
     # The message length as 4 hex bytes
